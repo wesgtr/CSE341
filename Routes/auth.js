@@ -1,10 +1,10 @@
 const express = require('express')
 const passport = require('passport')
-const router = express.Router()
+const routes = express.Router()
 
-router.get('/google', passport.authenticate('google', { scope: ['profile'] }))
+routes.get('/google', passport.authenticate('google', { scope: ['profile'] }))
 
-router.get(
+routes.get(
   '/google/callback',
   passport.authenticate('google', { failureRedirect: '/' }),
   (req, res) => {
@@ -12,8 +12,9 @@ router.get(
   }
 )
 
-router.get('/logout', (req, res) => {
+routes.get('/logout', (req, res) => {
   req.logout()
+  res.redirect('/')
 })
 
-module.exports = router
+module.exports = routes

@@ -4,8 +4,10 @@ const dotenv = require('dotenv');
 const morgan = require('morgan');
 const passport = require('passport');
 const session = require('express-session')
-
+const MongoStore = require('connect-mongo');
 const connectDB = require('./config/db');
+const swaggerUi = require('swagger-ui-express');
+const swaggerDocument = require('./swagger.json');
 
 dotenv.config({ path: './config/.env' })
 
@@ -15,26 +17,22 @@ connectDB()
 
 const app = express();
 
-const swaggerUi = require('swagger-ui-express');
-const swaggerDocument = require('./swagger.json');
-
-
 app.use(express.urlencoded({ extended: false }))
   .use(express.json())
   .use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument))
-  .use('/', require('./Routes'))
 
 app.use(
   session({
     secret: 'keyboard cat',
     resave: false,
     saveUninitialized: false,
-    // store: MongoStore.create({mongoUrl: process.env.MONGO_URI,}),
+    store: MongoStore.create({mongoUrl: process.env.MONGO_URI,}),
   })
 )
 
 app.use(passport.initialize())
-  .use(passport.session())
+app.use(passport.session())
+app.use('/', require('./Routes'))
 
 if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'))
